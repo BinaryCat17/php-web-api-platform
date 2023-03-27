@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Pool;
+use App\Exception\PoolNotFoundException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Attribute\AsController;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+
+#[AsController]
+class GetPoolController extends AbstractController
+{
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LoggerInterface $logger
+    ) {
+        $this->logger->info('GetPoolController here');
+    }
+
+    public function __invoke($id): Pool|null
+    {
+        $entity = $this->em->find('App\Entity\Pool', $id);
+        if (empty($entity))
+        {
+            throw new PoolNotFoundException(sprintf('The pool "%s" does not exist.', $id));
+        }
+        
+        return $entity;
+    }
+}
